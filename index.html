@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Login and Register</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<main>
+	<form id="register" class="form">
+		<h3 class="form-title">Регистрация</h3>
+
+		<div class="form-control">
+			<label>ФИО</label>
+			<input class="form-input" type="text" name="name" placeholder="Иванов Иван Иванович">
+		</div>
+
+		<div class="form-control">
+			<label>Email</label>
+			<input class="form-input" type="text" name="email" placeholder="example@email.ru">
+		</div>
+
+		<div class="form-control">
+			<label>Пароль</label>
+			<input class="form-input" type="password" name="password">
+		</div>
+
+		<div class="form-control">
+			<label>Повторите пароль</label>
+			<input class="form-input" type="password" name="confirm_password">
+		</div>
+
+		<div class="form-actions">
+			<button type="button">Очистить</button>
+			<button class="-primary" type="submit">Зарегистрироваться</button>
+		</div>
+
+		<div class="form-divider"></div>
+
+		<div class="text-center">
+			Уже зарегистрированны? <a href="javascript:void(0);">Авторизуйтесь!</a>
+		</div>
+	</form>
+
+	<form id="login" class="form">
+		<h3 class="form-title">Авторизация</h3>
+
+		<div class="form-error hidden"></div>
+
+		<div class="form-control">
+			<label>Email</label>
+			<input class="form-input" type="text" name="email" placeholder="example@email.ru">
+		</div>
+
+		<div class="form-control">
+			<label>Пароль</label>
+			<input class="form-input" type="password" name="password">
+		</div>
+
+		<div class="form-actions">
+			<a href="javascript:void(0);">Забыли пароль?</a>
+			<button class="-primary" type="submit">Войти</button>
+		</div>
+
+		<div class="form-divider"></div>
+
+		<div class="text-center">
+			Нет аккаунта? <a href="javascript:void(0);">Зарегистрируйтесь!</a>
+		</div>
+	</form>
+
+	<form id="forget-password" class="form">
+		<h3 class="form-title">Восстановление пароля</h3>
+
+		<div class="form-control">
+			<label>Email</label>
+			<input class="form-input" type="text" name="email" placeholder="example@email.ru">
+		</div>
+
+		<div class="form-actions">
+			<button type="button">Отмена</button>
+			<button class="-primary" type="submit">Восстановить</button>
+		</div>
+	</form>
+
+	<script src="app.js"></script>
+	<script>
+		new App();
+	</script>
+</main>
+</body>
+</html>

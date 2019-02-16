@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css?family=Ubuntu:300,400,500&subset=cyrillic-ext');
+
+$form-gutters: 15px;
+$form-margin: 30px;
+
+$primaryColor: dodgerblue;
+$dangerColor: #FF3335;
+
+@function shadow($color, $opacity: 0.5) {
+	@return 0 2px 10px 0 rgba($color, $opacity);
+}
+
+@mixin transition() {
+	transition: all ease-in-out .2s;
+}
+
+@mixin activeInput($color) {
+	&:hover, &:focus {
+		box-shadow: shadow($color);
+	}
+}
+
+body {
+	font-family: 'Ubuntu', sans-serif;
+	margin: 0;
+	padding: 0;
+}
+
+input, button {
+	outline: none;
+}
+
+a {
+	text-decoration: none;
+	color: $primaryColor;
+
+	&:hover {
+		color: rgba($primaryColor, 0.7);
+		text-decoration: underline;
+	}
+}
+
+.hidden {
+	display: none !important;
+}
+
+.text {
+	&-center {
+		text-align: center;
+	}
+
+	&-right {
+		text-align: right;
+	}
+}
+
+$parent: '.form';
+
+#{$parent} {
+	display: flex;
+	flex-direction: column;
+	width: 400px;
+	max-width: calc(100% - #{$form-gutters} * 2);
+	padding: 20px 30px;
+	margin: 40px auto 0;
+
+	&-title {
+		text-align: center;
+		text-transform: uppercase;
+		margin-bottom: 30px;
+	}
+
+	&-error, &-control {
+		margin-bottom: $form-margin;
+	}
+
+	&-error {
+		text-align: center;
+		color: $dangerColor;
+	}
+
+	&-control {
+		display: flex;
+		flex-direction: column;
+
+		label {
+			margin-bottom: 5px;
+
+			@include transition;
+		}
+
+		&.-error {
+			label {
+				color: $dangerColor;
+			}
+
+			#{$parent}-input {
+				border-color: $dangerColor;
+
+				@include activeInput($dangerColor);
+			}
+
+			#{$parent}-hint {
+				color: $dangerColor;
+			}
+		}
+	}
+
+	&-input {
+		$defaultColor: #dadada;
+
+		display: flex;
+		align-items: center;
+		height: 40px;
+		font-size: 16px;
+		border: 1px solid $defaultColor;
+		border-radius: 5px;
+		padding: 0 20px;
+
+		@include transition;
+		@include activeInput($defaultColor);
+	}
+
+	&-hint {
+		font-size: 13px;
+		color: #909090;
+		margin-top: 5px;
+
+		@include transition;
+	}
+
+	&-actions {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+
+		a {
+			display: inline-block;
+			margin-right: auto;
+		}
+
+		button {
+			$bg: #c0c0c0;
+
+			background: $bg;
+			display: inline-flex;
+			align-items: center;
+			height: 40px;
+			font-size: 16px;
+			padding: 0 15px;
+			border: 1px solid $bg;
+			border-radius: 7px;
+			margin-left: $form-gutters / 3;
+			cursor: pointer;
+
+			@include transition;
+
+			&:hover {
+				background: rgba($bg, 0.7);
+				border-color: rgba($bg, 0.7);
+			}
+
+			&:disabled, &.-disabled {
+				cursor: not-allowed !important;
+			}
+
+			&.-primary {
+				background: $primaryColor;
+				border-color: $primaryColor;
+				color: #fff;
+
+				&:hover {
+					background: rgba($primaryColor, 0.85);
+					border-color: rgba($primaryColor, 0.85);
+					box-shadow: shadow($primaryColor, 0.3);
+				}
+			}
+		}
+	}
+
+	&-divider {
+		width: 100%;
+		height: 1px;
+		border-top: 1px solid #e0e0e0;
+		margin: $form-margin 0;
+	}
+}
