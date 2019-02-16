@@ -136,10 +136,18 @@ class Validator {
 class RegistrationForm extends Form {
 	constructor() {
 		super('#register');
+
+		this.onLoginClick = () => console.log('login click');
+
+		this.element.querySelector('.text-center a').addEventListener('click', this.loginClickHandler.bind(this));
 	}
 
 	validate() {
 
+	}
+
+	loginClickHandler() {
+		this.onLoginClick();
 	}
 }
 
@@ -150,8 +158,8 @@ class AuthenticationForm extends Form {
 		this.onRegisterClick = () => console.log('register click');
 		this.onForgetPasswordClick = () => console.log('forget password click');
 
-		this.element.querySelector('.form-actions a').addEventListener('click', this.forgetPasswordClickHandler);
-		this.element.querySelector('.text-center a').addEventListener('click', this.registerClickHandler);
+		this.element.querySelector('.form-actions a').addEventListener('click', this.forgetPasswordClickHandler.bind(this));
+		this.element.querySelector('.text-center a').addEventListener('click', this.registerClickHandler.bind(this));
 	}
 
 	get validationRules() {
@@ -172,10 +180,18 @@ class AuthenticationForm extends Form {
 class ForgetPasswordForm extends Form {
 	constructor() {
 		super('#forget-password');
+
+		this.onCancelClick = () => console.log('cancel click');
+
+		this.element.querySelector('.form-actions button').addEventListener('click', this.cancelClickHandler.bind(this));
 	}
 
 	validate() {
 
+	}
+
+	cancelClickHandler() {
+		this.onCancelClick();
 	}
 }
 
@@ -222,6 +238,16 @@ class App {
 		this.authenticationForm.onRegisterClick = () => {
 			this.authenticationForm.hide();
 			this.registrationForm.show();
+		};
+
+		this.forgetPasswordForm.onCancelClick = () => {
+			this.forgetPasswordForm.hide();
+			this.authenticationForm.show();
+		};
+
+		this.registrationForm.onLoginClick = () => {
+			this.registrationForm.hide();
+			this.authenticationForm.show();
 		};
 
 		this.init();
