@@ -105,6 +105,7 @@ class Validator {
 			},
 			email: (v) => /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(String(v).toLocaleLowerCase()),
 			string: (v) => typeof v === 'string',
+			alpha: (v) => /^[a-zA-Zа-яА-ЯёЁ]*$/.test(String(v)),
 			number: (v) => typeof v === 'number',
 			numeric: (v) => typeof v === 'number' || !isNaN(parseInt(v)),
 			min: (v, min) => {
@@ -128,6 +129,7 @@ class Validator {
 		return Object.assign({
 			required: () => 'Поле должно быть заполнено',
 			string: () => 'Поле должно содержать строку',
+			alpha: () => 'Поле должно содержать только буквы',
 			email: () => 'Поле должно содержать адрес электронной почты',
 			number: () => 'Поле должно содержать число',
 			numeric: () => 'Поле должно содержать число',
@@ -137,8 +139,15 @@ class Validator {
 				}
 
 				return `Строка должна быть не менее ${min} символов в длинну`;
-			}
+			},
+			equals: (v, field) => `Поле должно совпадать с полем "${this.translate(field)}"`
 		}, this.customMessages);
+	}
+
+	get fields() {
+		return {
+			password: 'Пароль'
+		};
 	}
 
 	validate(rules) {
@@ -173,6 +182,10 @@ class Validator {
 		this.errors[name] = { rule, message };
 	}
 
+	translate(field) {
+		return this.fields[field] || field;
+	}
+
 	registerRule(name, validator, message = null) {
 		if (this.rules.hasOwnProperty(name)) {
 			throw new Error(`[Validator] Rule with name "${name}" already exists`);
@@ -193,13 +206,19 @@ class RegistrationForm extends Form {
 
 	get validationRules() {
 		return {
+			name: 'required|alpha',
 			email: 'required|email',
-			password: 'required|string|min:6'
+			password: 'required|string|min:6',
+			// confirm_password: 'required|equals:password'
 		};
 	}
 
 	loginClickHandler() {
 		this.onLoginClick();
+	}
+
+	submit() {
+		alert('Типо зарегистрировался');
 	}
 }
 
@@ -245,13 +264,16 @@ class ForgetPasswordForm extends Form {
 
 	get validationRules() {
 		return {
-			email: 'required|email',
-			password: 'required|string|min:6'
+			email: 'required|email'
 		};
 	}
 
 	cancelClickHandler() {
 		this.onCancelClick();
+	}
+
+	submit() {
+		alert('Типо восстановил пароль');
 	}
 }
 
