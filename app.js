@@ -17,7 +17,11 @@ class Form {
 		this.selector = selector;
 		this.element = document.querySelector(this.selector);
 
-		this.controls = [...this.element.querySelectorAll('.form-control')].map((el) => new FormControl(el));
+		this.controls = [...this.element.querySelectorAll('.form-control')].map((el) => {
+			const name = el.querySelector('input').getAttribute('name');
+
+			return new FormControl(el, this.validationRules[name]);
+		});
 		this.submitButton = this.element.querySelector('button[type=submit]');
 
 		this.submitButton.addEventListener('click', (e) => {
@@ -58,11 +62,15 @@ class Form {
 	}
 
 	validate() {
-		throw new Error('[Form] You must implement this method in child class');
+		this.controls.forEach((control) => {
+			const rule = this.validationRules[control.name];
+
+			control.validate(rule);
+		});
 	}
 
 	submit() {
-		throw new Error('[Form] You must implement this method in child class');
+		throw new Error('[Form] You must implement "submit" method in child class');
 	}
 }
 
@@ -71,8 +79,17 @@ class Validator {
 		this.data = data;
 		this.customRules = {};
 		this.customMessages = messages;
+		this.errors = {};
 
+		this.validate(rules);
+	}
 
+	get isValid() {
+		return !Object.keys(this.errors).length;
+	}
+
+	get errorsAll() {
+		return Object.values(this.errors).map((row) => row.message).join('. ');
 	}
 
 	get rules() {
@@ -124,6 +141,38 @@ class Validator {
 		}, this.customMessages);
 	}
 
+	validate(rules) {
+		this.errors = {};
+
+		const keys = Object.keys(this.data);
+
+		for (let i = 0; i < keys.length; i++) {
+			const name = keys[i];
+			const value = this.data[name];
+			const conditions = rules[name].split('|');
+
+			for (let j = 0; j < conditions.length; j++) {
+				let [rule, args] = conditions[j].split(':');
+
+				args = args ? args.split(',') : [];
+
+				let isValid = this.rules[rule](value, ...args);
+
+				if (!isValid) {
+					const message = this.messages[rule](value, ...args);
+
+					this.createError(name, rule, message);
+
+					break;
+				}
+			}
+		}
+	}
+
+	createError(name, rule, message) {
+		this.errors[name] = { rule, message };
+	}
+
 	registerRule(name, validator, message = null) {
 		if (this.rules.hasOwnProperty(name)) {
 			throw new Error(`[Validator] Rule with name "${name}" already exists`);
@@ -142,8 +191,11 @@ class RegistrationForm extends Form {
 		this.element.querySelector('.text-center a').addEventListener('click', this.loginClickHandler.bind(this));
 	}
 
-	validate() {
-
+	get validationRules() {
+		return {
+			email: 'required|email',
+			password: 'required|string|min:6'
+		};
 	}
 
 	loginClickHandler() {
@@ -165,6 +217,7 @@ class AuthenticationForm extends Form {
 	get validationRules() {
 		return {
 			email: 'required|email',
+			password: 'required|string|min:6'
 		};
 	}
 
@@ -174,6 +227,10 @@ class AuthenticationForm extends Form {
 
 	registerClickHandler() {
 		this.onRegisterClick();
+	}
+
+	submit() {
+		alert('Типо авторизован');
 	}
 }
 
@@ -186,8 +243,11 @@ class ForgetPasswordForm extends Form {
 		this.element.querySelector('.form-actions button').addEventListener('click', this.cancelClickHandler.bind(this));
 	}
 
-	validate() {
-
+	get validationRules() {
+		return {
+			email: 'required|email',
+			password: 'required|string|min:6'
+		};
 	}
 
 	cancelClickHandler() {
@@ -196,19 +256,47 @@ class ForgetPasswordForm extends Form {
 }
 
 class FormControl {
-	constructor(el) {
+	constructor(el, rule) {
 		this.element = el;
-		this.error = false;
-		this.input = this.element.querySelector('input');
 		this.hint = null;
+		this.rule = rule;
 
+		this.input = this.element.querySelector('input');
 		this.input.addEventListener('blur', this.validate.bind(this));
+
+		// Private variable
+		this._error = false;
+	}
+
+	get value() {
+		return this.input.value;
+	}
+
+	get name() {
+		return this.input.getAttribute('name');
+	}
+
+	get error() {
+		return this._error;
+	}
+
+	set error(value) {
+		this._error = value;
+
+		const errorClass = '-error';
+
+		value
+			? this.element.classList.add(errorClass)
+			: this.element.classList.remove(errorClass);
 	}
 
 	validate() {
-		const value = this.input.value;
+		const validator = new Validator({ value: this.value }, { value: this.rule });
 
-		console.log('input value', value);
+		console.log(validator);
+
+		this.error = !validator.isValid;
+		this.error ? this.makeHint(validator.errorsAll) : this.removeHint();
 	}
 
 	makeHint(message) {
@@ -216,11 +304,20 @@ class FormControl {
 			throw new Error('[FormControl] The "message" argument must be a string');
 		}
 
-		this.hint = document.createElement('div');
-		this.hint.classList.add('form-hint');
+		if (!this.hint) {
+			this.hint = document.createElement('div');
+			this.hint.classList.add('form-hint');
+		}
+
 		this.hint.innerText = message;
 
 		this.element.appendChild(this.hint);
+	}
+
+	removeHint() {
+		if (this.hint) {
+			this.hint.remove();
+		}
 	}
 }
 
